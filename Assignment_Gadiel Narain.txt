@@ -1,0 +1,35 @@
+ASSIGNMENT
+Answer these questions based on the tutorial:
+1. Why is MVVM important? Which files represent Model, which files represent View, and which files represent ViewModel?
+Jawaban:
+MVVM memisahkan UI (View) dari logika dan data, sehingga memudahkan pengujian, pemeliharaan, dan pengembangan fitur tanpa mengubah komponen lain. View melakukan render UI, ViewModel menyediakan data dan logika presentasi, Model menangani data (API/DB).
+contoh:
+Model: Movie.kt (data class / @Entity), MovieDao.kt, MovieDatabase.kt
+View: activity_main.xml, view_movie_item.xml, MainActivity.kt, MovieAdapter.kt
+ViewModel: MovieViewModel.kt (exposes popularMovies sebagai LiveData/StateFlow)
+
+2. In Part 1, you implemented Data Binding, why is this more efficient than using the normal method?
+Jawaban:
+Menghilangkan findViewById() → kode lebih bersih dan aman (tipe diberi verifikasi compile-time).
+Mengikat View langsung ke properti ViewModel (app:list="@{viewModel.popularMovies}") sehingga UI otomatis update ketika data berubah (reactive) tanpa boilerplate observer manual.
+Meminimalkan kemungkinan bug UI-update, mempermudah refactor dan testing.
+
+3. In Part 2, you implemented the Singleton Pattern, why is this important?
+Jawaban:
+Menjamin hanya satu instance MovieDatabase di seluruh aplikasi → mencegah race condition dan inkonsistensi data.
+Pembuatan instance DB mahal; singleton menghemat resource dan memastikan thread-safety (dengan @Volatile + synchronized).
+Mempermudah akses global ke DAO tanpa membuat banyak koneksi DB.
+
+4. In Part 2 & 3, you implemented the Repository Pattern, why is this important?
+Jawaban:
+Abstraksi sumber data: Repository menyatukan sumber (API & Room) sehingga ViewModel hanya berinteraksi dengan satu interface.
+Menangani logika caching: cek DB dulu, jika kosong → fetch API → simpan ke DB. Ini membuat offline support dan konsistensi data.
+Memudahkan testing dan pemeliharaan karena pemisahan concern (network logic vs persistence vs UI).
+
+5. In part 3, you implemented the Worker Manager, is there another way to refresh your database with the latest data other than using Worker?
+Jawaban:
+Manual refresh (pull-to-refresh / tombol): sederhana, pengguna kontrol penuh, tapi bukan otomatis.
+JobScheduler / AlarmManager: bisa jadwalkan tugas; JobScheduler mirip WorkManager tapi WorkManager lebih cross-version dan lebih direkomendasikan.
+Foreground/Background Service: untuk tugas terus-menerus, tapi boros baterai dan sulit dikelola lifecycle-nya.
+SyncAdapter / ContentProvider: cocok untuk sinkronisasi sinkron antar akun, namun lebih kompleks dan jarang dipakai untuk kasus sederhana.
+Push-triggered sync (mis. FCM): server notifikasi memberi tahu app untuk sync saat ada update; efisien tapi butuh backend.
